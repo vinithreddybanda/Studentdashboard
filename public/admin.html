@@ -1,0 +1,77 @@
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    </head>
+    <body>
+    <h1>Admin Dashboard</h1>
+    
+    <table>
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Exam Marks</th>
+            <th>Attendance</th>
+            <th>Extra Circular Points</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody id="studentData">
+        <!-- Student data will be inserted here -->
+        </tbody>
+    </table>
+
+    <script>
+        // Fetching data from the endpoint
+        fetch('/data')
+        .then(response => response.json())
+        .then(data => {
+            const studentData = document.getElementById('studentData');
+
+            data.forEach(student => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><input type="text" name="name" value="${student.name}"></td>
+                <td><input type="number" name="examMarks" value="${student.examMarks}"></td>
+                <td><input type="number" name="attendance" value="${student.attendance}"></td>
+                <td><input type="number" name="extraCircularPoints" value="${student.extraCircularPoints}"></td>
+                <td>
+                <button onclick="updateStudent('${student._id}')">Save</button>
+                </td>
+            `;
+            studentData.appendChild(row);
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+        });
+
+        // Function to update student data
+        function updateStudent(studentId) {
+        const student = {
+            name: document.querySelector(`input[name="name"][data-student="${studentId}"]`).value,
+            examMarks: document.querySelector(`input[name="examMarks"][data-student="${studentId}"]`).value,
+            attendance: document.querySelector(`input[name="attendance"][data-student="${studentId}"]`).value,
+            extraCircularPoints: document.querySelector(`input[name="extraCircularPoints"][data-student="${studentId}"]`).value
+        };
+
+        fetch(`/updateStudent/${studentId}`, {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(student)
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Handle success response if needed
+            console.log('Student updated successfully:', data);
+        })
+        .catch(error => {
+            console.error('Error updating student:', error);
+        });
+        }
+    </script>
+    </body>
+    </html>
